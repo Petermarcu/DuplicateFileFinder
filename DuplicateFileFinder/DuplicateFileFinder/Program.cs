@@ -15,13 +15,13 @@ namespace DuplicateFileFinder
 
         // Fields
 
-        public static Dictionary<long, List<FileInfo>> fileSizeHashDictionary = new Dictionary<long, List<FileInfo>>();
+        public static MultiDictionary<long, FileInfo> fileSizeHashDictionary = new MultiDictionary<long, FileInfo>();
 
         public static List<List<FileInfo>> duplicateFileList = new List<List<FileInfo>>();
 
         static void Main(string[] args)
         {
-            if (args.Count<String>() < 1)
+            if (args.Count<String>() < 1 || args[0] == "/?")
             {
                 ShowUsage();
                 return;
@@ -29,31 +29,24 @@ namespace DuplicateFileFinder
 
             try
             {
+                // Get the list of all the files in the directory recursively
                 IEnumerable<FileInfo> listOfFiles = new DirectoryInfo(args[0]).EnumerateFiles("*", SearchOption.AllDirectories);
 
                 List<List<FileInfo>> listOfIdenticalFiles = new List<List<FileInfo>>();
 
                 foreach (FileInfo fileInfo in listOfFiles)
                 {
-                    List<FileInfo> lengthList;
-                    if (!fileSizeHashDictionary.TryGetValue(fileInfo.Length, out lengthList))
-                    {
-                        lengthList = new List<FileInfo>();
-                        fileSizeHashDictionary.Add(fileInfo.Length, lengthList);
-                    }
-
-                    lengthList.Add(fileInfo);
+                    fileSizeHashDictionary.Add(fileInfo.Length, fileInfo);
                 }
 
                 FileInfo fileInfo1;
                 FileInfo fileInfo2;
                 foreach (long key in fileSizeHashDictionary.Keys)
                 {
-
                     // TODO: Go backwards instead and remove from the list as we find duplicates.
                     // TODO: Prevent scanning the first in the list for each comparison. 
-
-                    List<FileInfo> sameLengthList = fileSizeHashDictionary[key];
+                    // TODO: Whats the best way to cast IEnumerable to List?
+                    List<FileInfo> sameLengthList = (List<FileInfo>)fileSizeHashDictionary[key];
 
                     if (sameLengthList.Count > 1)
                     {
@@ -133,15 +126,12 @@ namespace DuplicateFileFinder
             return;
         }
 
-
-
-
         static void ShowUsage()
         {
             Console.WriteLine("");
             Console.WriteLine("Usage: LocateDuplicateFiles.exe <directory>");
             Console.WriteLine("");
-            Console.WriteLine("Pass the directory to search recursively to the tool and it will output a csv in that directory with the directories name appended with .csv");
+            Console.WriteLine("Pass the directory to search recursively");
         }
 
         public static bool? CompareFiles(FileInfo targetFileInfo, FileInfo updatedFileInfo)
