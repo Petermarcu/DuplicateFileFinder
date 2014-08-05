@@ -34,3 +34,8 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+
+DuplicateFileFinder/DuplicateFileFinder.v12.suo
+DuplicateFileFinder/DuplicateFileFinder/bin/*
+DuplicateFileFinder/DuplicateFileFinder/obj/*
+DuplicateFileFinder/DuplicateFileFinder.sln
